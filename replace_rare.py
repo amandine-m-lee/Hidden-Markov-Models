@@ -7,24 +7,22 @@ trainsrcfile = raw_input("Training source file: ")
 destfile = raw_input("New training file destination: ")"""
 
 countsrcfile = "gene.counts"
-trainsrcfile = "gene.train"
+trainsrcfile = "short.train"
 destfile = "new.train"
 
 srcfreq = open(countsrcfile)
 
-lines = srcfreq.readlines()
 rarewords = []
 rarecount = 0
 
-for line in lines:
+for line in srcfreq:
     parts = line.split(' ')
     if parts[1] == 'WORDTAG':
-        tagtype = parts[1]
         word = parts[3]
         freq = int(parts[0])
     
         if freq < 5:
-            print word
+          #  print word
             rarewords.append(word.strip())
             rarecount += freq
     else:
@@ -33,24 +31,17 @@ for line in lines:
 srctrain = open(trainsrcfile)
 dest = open(destfile, 'w')
 
-lines1 = srctrain.readlines()
-
 linnum =0
 
-for line in lines1:
+for line in srctrain:
     words = line.split(' ')
+    linnum += 1
+    print linnum
     if len(words) == 2:
-        word = words[0]
-        linnum += 1
-        print linnum
-
-        if word in rarewords:
-            print word
-            words[0]=('__RARE__')
-    
-    newline = ""
-    for word in words:
-        newline += word + " "
-
-    dest.write(newline)
+        if words[0] in rarewords:
+            dest.write('__RARE__ ' + words[1])
+        else:
+            dest.write(line)
+    else:
+        dest.write(line)
 
