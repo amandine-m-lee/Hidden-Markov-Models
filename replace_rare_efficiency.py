@@ -1,22 +1,26 @@
 @profile
 def replace_rare():
-
+    
+    from sets import Set
     """This program takes all of the words with counts < 5 and replaces
     thier name with '_RARE_' to estimate the emmission probability of 
     words not seen before"""
 
-    """countsrcfile = raw_input("Count source file: ")
-    trainsrcfile = raw_input("Training source file: ")
-    destfile = raw_input("New training file destination: ")"""
+    from sys import argv
+    from sets import Set
 
-    countsrcfile = "gene.counts"
-    trainsrcfile = "short.train"
-    destfile = "new.train"
+    script, countsrcfile, trainsrcfile, destfile = argv
 
+# The file from which count values will be extracted 
     srcfreq = open(countsrcfile)
+# Initialize the list of rare words
+    rarewords = Set()
+# rarecount = 0
+# Turns out to be about 40,000
 
-    rarewords = []
-    rarecount = 0
+    """Step through file and look for entries with 5 or less counts, 
+    add to rarewords, and exit when the evaluation type is no longer
+    'WORDTAG'"""
 
     for line in srcfreq:
         parts = line.split(' ')
@@ -25,20 +29,23 @@ def replace_rare():
             freq = int(parts[0])
         
             if freq < 5:
-              #  print word
-                rarewords.append(word.strip())
-                rarecount += freq
+                rarewords.add(word.strip())
+                #rarecount += freq
         else:
             break
 
+#File from which training data will be extracted
     srctrain = open(trainsrcfile)
+#Destination file to be written
     dest = open(destfile, 'w')
 
-    linnum =0
+#For keeping track of progress through file
+#linnum =0
+    """Look through the lines in the sourcefile, search and replace"""
 
     for line in srctrain:
         words = line.split(' ')
-        linnum += 1
+       # linnum += 1
        # print linnum
 
         if len(words) == 2:
@@ -48,5 +55,6 @@ def replace_rare():
                 dest.write(line)
         else:
             dest.write(line)
+
 
 replace_rare()

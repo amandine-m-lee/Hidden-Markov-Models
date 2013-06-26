@@ -3,13 +3,14 @@ thier name with '_RARE_' to estimate the emmission probability of
 words not seen before"""
 
 from sys import argv
+from sets import Set
 
-script, countsrcfile, transrcfile, destfile = argv
+script, countsrcfile, trainsrcfile, destfile = argv
 
 # The file from which count values will be extracted 
 srcfreq = open(countsrcfile)
 # Initialize the list of rare words
-rarewords = []
+rarewords = Set()
 # rarecount = 0
 # Turns out to be about 40,000
 
@@ -24,7 +25,7 @@ for line in srcfreq:
         freq = int(parts[0])
     
         if freq < 5:
-            rarewords.append(word.strip())
+            rarewords.add(word.strip())
             #rarecount += freq
     else:
         break
