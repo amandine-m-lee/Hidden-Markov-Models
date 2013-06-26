@@ -46,7 +46,7 @@ for line in srctrain:
 
     if len(words) == 2:
         if words[0] in rarewords:
-            dest.write('__RARE__ ' + words[1])
+            dest.write('_RARE_ ' + words[1])
         else:
             dest.write(line)
     else:

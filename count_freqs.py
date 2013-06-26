@@ -5,7 +5,7 @@ __date__ ="$Sep 12, 2011"
 
 import sys
 from collections import defaultdict
-import mat
+import math
 
 """
 Count n-gram frequencies in a data file and write counts to
