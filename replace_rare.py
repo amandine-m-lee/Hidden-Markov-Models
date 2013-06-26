@@ -1,52 +1,53 @@
-@profile
-def replace_rare():
+"""This program takes all of the words with counts < 5 and replaces
+thier name with '_RARE_' to estimate the emmission probability of 
+words not seen before"""
 
-    """This program takes all of the words with counts < 5 and replaces
-    thier name with '_RARE_' to estimate the emmission probability of 
-    words not seen before"""
+from sys import argv
 
-    """countsrcfile = raw_input("Count source file: ")
-    trainsrcfile = raw_input("Training source file: ")
-    destfile = raw_input("New training file destination: ")"""
+script, countsrcfile, transrcfile, destfile = argv
 
-    countsrcfile = "gene.counts"
-    trainsrcfile = "short.train"
-    destfile = "new.train"
+# The file from which count values will be extracted 
+srcfreq = open(countsrcfile)
+# Initialize the list of rare words
+rarewords = []
+# rarecount = 0
+# Turns out to be about 40,000
 
-    srcfreq = open(countsrcfile)
+"""Step through file and look for entries with 5 or less counts, 
+add to rarewords, and exit when the evaluation type is no longer
+'WORDTAG'"""
 
-    rarewords = []
-    rarecount = 0
+for line in srcfreq:
+    parts = line.split(' ')
+    if parts[1] == 'WORDTAG':
+        word = parts[3]
+        freq = int(parts[0])
+    
+        if freq < 5:
+            rarewords.append(word.strip())
+            #rarecount += freq
+    else:
+        break
 
-    for line in srcfreq:
-        parts = line.split(' ')
-        if parts[1] == 'WORDTAG':
-            word = parts[3]
-            freq = int(parts[0])
-        
-            if freq < 5:
-              #  print word
-                rarewords.append(word.strip())
-                rarecount += freq
-        else:
-            break
+#File from which training data will be extracted
+srctrain = open(trainsrcfile)
+#Destination file to be written
+dest = open(destfile, 'w')
 
-    srctrain = open(trainsrcfile)
-    dest = open(destfile, 'w')
+#For keeping track of progress through file
+#linnum =0
+"""Look through the lines in the sourcefile, search and replace"""
 
-    linnum =0
+for line in srctrain:
+    words = line.split(' ')
+   # linnum += 1
+   # print linnum
 
-    for line in srctrain:
-        words = line.split(' ')
-        linnum += 1
-       # print linnum
-
-        if len(words) == 2:
-            if words[0] in rarewords:
-                dest.write('__RARE__ ' + words[1])
-            else:
-                dest.write(line)
+    if len(words) == 2:
+        if words[0] in rarewords:
+            dest.write('__RARE__ ' + words[1])
         else:
             dest.write(line)
+    else:
+        dest.write(line)
 
-replace_rare()
