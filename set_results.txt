@@ -1,0 +1,67 @@
+Wrote profile results to replace_rare_efficiency.py.lprof
+Timer unit: 1e-06 s
+
+File: replace_rare_efficiency.py
+Function: replace_rare at line 1
+Total time: 0.254541 s
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+     1                                           @profile
+     2                                           def replace_rare():
+     3                                               
+     4         1          678    678.0      0.3      from sets import Set
+     5                                               """This program takes all of the words with counts < 5 and replaces
+     6                                               thier name with '_RARE_' to estimate the emmission probability of 
+     7                                               words not seen before"""
+     8                                           
+     9         1            4      4.0      0.0      from sys import argv
+    10         1            2      2.0      0.0      from sets import Set
+    11                                           
+    12         1            1      1.0      0.0      script, countsrcfile, trainsrcfile, destfile = argv
+    13                                           
+    14                                           # The file from which count values will be extracted 
+    15         1           11     11.0      0.0      srcfreq = open(countsrcfile)
+    16                                           # Initialize the list of rare words
+    17         1            5      5.0      0.0      rarewords = Set()
+    18                                           # rarecount = 0
+    19                                           # Turns out to be about 40,000
+    20                                           
+    21                                               """Step through file and look for entries with 5 or less counts, 
+    22                                               add to rarewords, and exit when the evaluation type is no longer
+    23                                               'WORDTAG'"""
+    24                                           
+    25     33507        26132      0.8     10.3      for line in srcfreq:
+    26     33507        37577      1.1     14.8          parts = line.split(' ')
+    27     33507        25254      0.8      9.9          if parts[1] == 'WORDTAG':
+    28     33506        23828      0.7      9.4              word = parts[3]
+    29     33506        43534      1.3     17.1              freq = int(parts[0])
+    30                                                   
+    31     33506        24149      0.7      9.5              if freq < 5:
+    32     26962        52970      2.0     20.8                  rarewords.add(word.strip())
+    33                                                           #rarecount += freq
+    34                                                   else:
+    35         1            1      1.0      0.0              break
+    36                                           
+    37                                           #File from which training data will be extracted
+    38         1           22     22.0      0.0      srctrain = open(trainsrcfile)
+    39                                           #Destination file to be written
+    40         1           40     40.0      0.0      dest = open(destfile, 'w')
+    41                                           
+    42                                           #For keeping track of progress through file
+    43                                           #linnum =0
+    44                                               """Look through the lines in the sourcefile, search and replace"""
+    45                                           
+    46      3001         3001      1.0      1.2      for line in srctrain:
+    47      3000         4089      1.4      1.6          words = line.split(' ')
+    48                                                  # linnum += 1
+    49                                                  # print linnum
+    50                                           
+    51      3000         2999      1.0      1.2          if len(words) == 2:
+    52      2872         6416      2.2      2.5              if words[0] in rarewords:
+    53       576          866      1.5      0.3                  dest.write('__RARE__ ' + words[1])
+    54                                                       else:
+    55      2296         2812      1.2      1.1                  dest.write(line)
+    56                                                   else:
+    57       128          150      1.2      0.1              dest.write(line)
+
