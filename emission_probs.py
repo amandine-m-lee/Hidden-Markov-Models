@@ -21,8 +21,6 @@ class EmissionProbEmitter(object):
 #For now going to hardwire the source file... Might make it an argument later
     def get_counts_from_file(self):
         
-        from string import strip
-        
         if self.counted:
             print "Already counted"
         else:
@@ -45,7 +43,8 @@ class EmissionProbEmitter(object):
                 else:
                     count = parts[0]
                     seqtype = parts[1]
-                    args = tuple(map(strip, parts[2:]))
+                    parts[-1] = parts[-1].strip()
+                    args = tuple(parts[2:])
 
                     (self.ngram_counts)[(seqtype, args)] = count
 
