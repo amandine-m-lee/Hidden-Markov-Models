@@ -5,9 +5,11 @@ class EmissionProbEmitter(object):
         self.srcname = ""
         self.counted = False
         self.prob_computed = False
-        self.word_emm_probs = dict()
-        self.word_counts = dict()
-        self.ngram_counts = dict()
+        self.word_emm_probs = {}
+        self.word_counts = {}
+        self.unigram_counts = {}
+        self.bigram_counts = {}
+        self.trigram_counts = {}
      
     def get_sourcename(self):
         
@@ -18,7 +20,6 @@ class EmissionProbEmitter(object):
         except:
             self.get_sourcename()
 
-#For now going to hardwire the source file... Might make it an argument later
     def get_counts_from_file(self):
         
         if self.counted:
@@ -38,17 +39,25 @@ class EmissionProbEmitter(object):
                     tagtype = parts[2]
                     name = parts[3].strip()
                     
-                    self.word_counts[(name, tagtype)] = count
+                    if name in self.word_counts:
+                        (self.word_counts[name])[tagtype] = count
+
+                    else:
+                        self.word_counts[name] = {tagtype:count}
 
                 else:
                     count = parts[0]
                     seqtype = parts[1]
                     parts[-1] = parts[-1].strip()
                     args = tuple(parts[2:])
-
-                    (self.ngram_counts)[(seqtype, args)] = count
-
-
+                    
+                    if seqtype == '1-GRAM':
+                        self.unigram_counts[args] = count
+                    elif seqtype == '2-GRAM':
+                        self.bigram_counts[args] = count
+                    else:
+                        self.bigram_counts[args] = count
+        
     def calculate_word_probs(self):
         if not self.counted:
             self.get_counts_from_file()
@@ -57,8 +66,12 @@ class EmissionProbEmitter(object):
             print "Probabilities already computed"
         else:
 
-            for wordntag in self.word_counts:
-                self.word_emm_probs[wordntag] = float(self.word_counts[wordntag]) / float(self.ngram_counts[('1-GRAM', (wordntag[1],))])
+            for word in self.word_counts:
+                for tag in self.word_counts[word]:
+                    count = (self.word_counts[word])[tag]
+                    totalcount = self.unigram_counts[(tag,)]
+
+                    self.word_emm_probs[(word, tag)] = float(count)/float(totalcount)
 
     def get_word_prob(self, word, tagtype):
         return self.word_emm_probs[(word, tagtype)]
@@ -69,14 +82,7 @@ class EmissionProbEmitter(object):
 ex = EmissionProbEmitter()
 ex.srcname = "new.counts"
 ex.get_counts_from_file()
-ex.get_counts_from_file()
 ex.calculate_word_probs()
-
-print ex.get_word_prob('necessary', 'O')
-#print ex.word_counts['sample', 'O']
-"""for key in (ex.word_emm_probs).keys():
-    print key
-    print ex.word_emm_probs[key]"""
 
 
 
