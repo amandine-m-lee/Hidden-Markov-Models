@@ -102,27 +102,54 @@ class EmissionProbEmitter(object):
                 for tag in self.word_counts[word]:
                     count = (self.word_counts[word])[tag]
                     totalcount = self.unigram_counts[(tag,)]
-                    #Would casting as double be better?
-                    self.word_emm_probs[(word, tag)] = float(count)/float(totalcount)
-    
-    def get_word_prob(self, word, tagtype):
+                    prob = float(count)/float(totalcount)
+                    
+                    if word in self.word_emm_probs:
+                        (self.word_emm_probs[word])[tag] = prob
+                    else:
+                        (self.word_emm_probs[word]) = {tag:prob}
+                        
+    def get_word_prob(self, word, tag):
        
         """ FUNCTION: get_word_prob
             ARGUMETNS: self
                        word - word ot look up emission probability of
                        tagtype - tag to be analyzes"""
 
-        return self.word_emm_probs[(word, tagtype)]
+        return (self.word_emm_probs[word])[tag]
 
+    def best_tag(self, word):
 
+        tagdict = self.word_emm_probs[word]
+        vals = tagdict.values()
+        keys = tagdict.keys()
+        maxprob = max(vals)
+        for key in keys:
+            if tagdict[key] == maxprob:
+                return key
 
-#Testing
-"""ex = EmissionProbEmitter()
+        return None #Or some kind of error. What if word isn't in the dict? I should handle this error at some point
+       
+    def tagger(self, devfile, destfile):
+        #best_tag
+        dev = open(devfile)
+        dest = open(destfile, 'w')
+
+        for line in dev:
+            word = line.strip()
+            if word in self.word_emm_probs:
+                dest.write(word + ' ' + self.best_tag(word) + '\n')
+            else:
+                dest.write(word + ' ' + self.best_tag('_RARE_') + '\n')
+
+        
+
+ex = EmissionProbEmitter()
+
 ex.srcname = "new.counts"
-ex.get_counts_from_file()
-ex.get_counts_from_file()
 ex.calculate_word_probs()
-ex.calculate_word_probs()"""
+ex.tagger('gene.dev', 'gene.dev.p1.out')
 
+print ex.word_emm_probs['_RARE_']
 
 
