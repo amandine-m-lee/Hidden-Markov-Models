@@ -78,7 +78,7 @@ class EmissionProbEmitter(object):
                     elif seqtype == '2-GRAM':
                         self.bigram_counts[args] = count
                     else:
-                        self.bigram_counts[args] = count
+                        self.trigram_counts[args] = count
 
             src.close()
         
@@ -142,6 +142,35 @@ class EmissionProbEmitter(object):
             else:
                 dest.write(word + ' ' + self.best_tag('_RARE_') + '\n')
 
+        dev.close()
+        dest.close()
+
+    def trigram_given_bigram_tags(self, tag1, tag2, tag3):
+
+        if not self.counted:
+            self.get_counts_from_file()
+
+        bi_count = self.bigram_counts[(tag1, tag2)]
+        tri_count = self.trigram_counts[(tag1, tag2, tag3)]
+
+        return float(tri_count)/float(bi_count)
         
+
+ex = EmissionProbEmitter()
+
+ex.srcname = "new.counts"
+ex.calculate_word_probs()
+ex.tagger('gene.dev', 'gene.dev.p1.out')
+
+#print ex.trigram_counts.items()
+
+#print ex.word_emm_probs['_RARE_']
+
+print ex.trigram_given_bigram_tags('O', 'O', 'O')
+print ex.trigram_given_bigram_tags('O', 'O', 'I-GENE')
+print ex.trigram_given_bigram_tags('*', 'O', 'O')
+print ex.trigram_given_bigram_tags('O', 'O', 'STOP')
+
+
 
 
