@@ -5,7 +5,7 @@ ex = EmissionProbEmitter()
 
 ex.srcname = "new.counts"
 ex.calculate_word_probs()
-ex.tagger('gene.dev', 'gene.dev.p1.out')
+ex.basic_tagger('gene.dev', 'new.key')
 
 #print ex.word_emm_probs['_RARE_']
 

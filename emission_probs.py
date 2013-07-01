@@ -139,6 +139,8 @@ class EmissionProbEmitter(object):
             word = line.strip()
             if word in self.word_emm_probs:
                 dest.write(word + ' ' + self.best_tag(word) + '\n')
+            elif word == '':
+                dest.write('\n')
             else:
                 dest.write(word + ' ' + self.best_tag('_RARE_') + '\n')
 
