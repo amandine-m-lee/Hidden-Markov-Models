@@ -130,7 +130,7 @@ class EmissionProbEmitter(object):
 
         return None #Or some kind of error. What if word isn't in the dict? I should handle this error at some point
        
-    def tagger(self, devfile, destfile):
+    def basic_tagger(self, devfile, destfile):
         #best_tag
         dev = open(devfile)
         dest = open(destfile, 'w')
@@ -155,22 +155,4 @@ class EmissionProbEmitter(object):
 
         return float(tri_count)/float(bi_count)
         
-
-ex = EmissionProbEmitter()
-
-ex.srcname = "new.counts"
-ex.calculate_word_probs()
-ex.tagger('gene.dev', 'gene.dev.p1.out')
-
-#print ex.trigram_counts.items()
-
-#print ex.word_emm_probs['_RARE_']
-
-print ex.trigram_given_bigram_tags('O', 'O', 'O')
-print ex.trigram_given_bigram_tags('O', 'O', 'I-GENE')
-print ex.trigram_given_bigram_tags('*', 'O', 'O')
-print ex.trigram_given_bigram_tags('O', 'O', 'STOP')
-
-
-
 
