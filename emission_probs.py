@@ -109,14 +109,20 @@ class EmissionProbEmitter(object):
                     else:
                         (self.word_emm_probs[word]) = {tag:prob}
                         
-    def get_word_prob(self, word, tag):
+    def e(self, word, tag):
        
-        """ FUNCTION: get_word_prob
+        """ FUNCTION: e
             ARGUMETNS: self
                        word - word ot look up emission probability of
                        tagtype - tag to be analyzes"""
 
-        return (self.word_emm_probs[word])[tag]
+
+        try:
+            return (self.word_emm_probs[word])[tag]
+        
+        except KeyError:
+            return 0
+
 
     def best_tag(self, word):
 
@@ -124,6 +130,7 @@ class EmissionProbEmitter(object):
         vals = tagdict.values()
         keys = tagdict.keys()
         maxprob = max(vals)
+
         for key in keys:
             if tagdict[key] == maxprob:
                 return key
@@ -147,7 +154,7 @@ class EmissionProbEmitter(object):
         dev.close()
         dest.close()
 
-    def trigram_given_bigram_tags(self, tag1, tag2, tag3):
+    def q(self, tag1, tag2, tag3):
 
         if not self.counted:
             self.get_counts_from_file()
@@ -156,5 +163,42 @@ class EmissionProbEmitter(object):
         tri_count = self.trigram_counts[(tag1, tag2, tag3)]
 
         return float(tri_count)/float(bi_count)
-        
 
+
+    def viterbi_tagger(self, devfile, destfile):
+
+        possible_tags = self.unigram_counts.keys()
+
+        dev = open(devfile)
+        dest = open(destfile, 'w')
+
+        mem = ('*', '*')
+
+        for line in dev:
+            word = line.strip()
+
+            if word == '':
+                mem = ('*', '*')
+                dest.write('\n')
+
+            else:
+
+                maxtag = ''
+                prob = 0;
+
+                if word in self.word_counts:
+                    word_eff = word
+                else:
+                    word_eff = '_RARE_'
+
+                for tag in possible_tags:
+
+                    tag = tag[0]
+                    
+                    if prob < self.q(mem[0], mem[1], tag) * self.e(word_eff, tag):
+                        prob =  self.q(mem[0], mem[1], tag) * self.e(word_eff, tag)
+                        maxtag = tag
+                
+                dest.write(word + ' ' + maxtag + '\n')
+
+                mem = (mem[1], tag)
