@@ -4,7 +4,7 @@ the emission probability of a word given a tag."""
 
 from collections import defaultdict
 
-class EmissionProbEmitter(object):
+class HMM(object):
 
     def __init__(self, source_file=None):
         #Check for source file name
@@ -21,6 +21,7 @@ class EmissionProbEmitter(object):
         self.unigram_counts = defaultdict(int)
         self.bigram_counts = defaultdict(int)
         self.trigram_counts = defaultdict(int)
+
      
     def get_sourcename(self):
     
@@ -55,6 +56,7 @@ class EmissionProbEmitter(object):
         else:
             #Mark self as counted
             self.counted = True
+
             with open(self.srcname) as src:
 
                 #Step through file and identify record type
@@ -84,7 +86,6 @@ class EmissionProbEmitter(object):
                         else:
                             self.trigram_counts[args] = count
 
-        
 
     def calculate_word_probs(self):
     
@@ -124,43 +125,7 @@ class EmissionProbEmitter(object):
         except KeyError:
             return 0
 
-
-    def best_tag(self, word):
-
-        """ FUNCTION: best_tag
-            ARGUMENTS: self
-                       word - word to find the best unigram tag for
-
-            Given word and no other info, find the most probable tag"""
-        if word in self.word_emm_probs:
-            tagdict = self.word_emm_probs[word]
-        else:
-            tagdict = self.word_emm_probs['_RARE_']
-
-        return max(tagdict.keys(), key=lambda x: tagdict[x])
-
        
-    def basic_tagger(self, devfile, destfile):
-
-        """ FUNCTION: basic_tagger
-            ARGUMENTS: self
-                       defile - the file to be tagged
-                       destfile - the file to write tagged version to
-
-            Writes to destfile with defile and tag determined by best_tag"""
-
-        with open(devfile) as dev:
-            with open(destfile, 'w') as dest:
-                #Step through each line
-                for line in dev:
-
-                    word = line.strip() #Strip newline
-                    
-                    if word == '': #Case of blank like
-                        dest.write('\n')
-                    else:
-                        dest.write(word + ' ' + self.best_tag(word) + '\n')
-
     def third_tag_prob(self, tag1, tag2, tag3):
 
         if not self.counted:
@@ -173,6 +138,33 @@ class EmissionProbEmitter(object):
             return None
 
         return float(tri_count)/float(bi_count)
+
+
+    def rare_type(self, word):
+
+        import string
+
+        ret = '_RARE_'
+        
+        for letter in word:
+            isupp = True
+
+            if not letter in string.uppercase:
+                isupp = False
+
+            if letter in string.digits:
+                ret =  '_NUMERIC_'
+
+        if isupp:
+            ret = '_ALLCAPS_'
+        elif word[-1] in string.uppercase:
+            ret = '_LASTCAP_'
+        
+        if not ret in self.word_counts:
+            return '_RARE_'
+        else:
+            return ret
+
 
 
     def viterbi_tagger(self, devfile, destfile):
@@ -197,10 +189,10 @@ class EmissionProbEmitter(object):
                             word_eff = self.rare_type(word)
 
                         possible_tags = self.word_counts[word_eff].keys()
-                        #max with function version
 
-                        maxtag = max(possible_tags, key= lambda tag: \
-                                self.third_tag_prob(mem[0], mem[1], tag) * self.emission_prob(word_eff, tag)) 
+                        #max with function version
+                        maxtag = max(possible_tags, key= lambda tag: self.third_tag_prob(mem[0], mem[1], tag)\
+                                * self.emission_prob(word_eff, tag)) 
 
                         dest.write(word + ' ' + maxtag + '\n')
 
