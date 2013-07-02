@@ -75,7 +75,7 @@ for line in srctrain:
         elif word in caprare:
             dest.write('_ALLCAPS_ ' + words[1])
         elif word in lastcap:
-            dest.write('_LASTCAP:_ ' + words[1])
+            dest.write('_NUMERIC_ ' + words[1])
         else:
             dest.write(line)
     else:
