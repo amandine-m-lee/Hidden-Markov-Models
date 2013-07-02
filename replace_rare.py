@@ -1,6 +1,6 @@
 """This program takes all of the words with counts < 5 and replaces
 thier name with '_RARE_' to estimate the emmission probability of 
-words not seen before"""
+words not seen before""" 
 
 from sys import argv
 from sets import Set
@@ -21,11 +21,12 @@ add to rarewords, and exit when the evaluation type is no longer
 for line in srcfreq:
     parts = line.split(' ')
     if parts[1] == 'WORDTAG':
-        word = parts[3]
-        freq = int(parts[0])
+        count, _, tag, word = parts
+        word = word.strip()
+        freq = long(count)
     
         if freq < 5:
-            rarewords.add(word.strip())
+            rarewords.add((word, tag))
             #rarecount += freq
     else:
         break
@@ -41,12 +42,13 @@ dest = open(destfile, 'w')
 
 for line in srctrain:
     words = line.split(' ')
-   # linnum += 1
-   # print linnum
-
+    
     if len(words) == 2:
-        if words[0] in rarewords:
-            dest.write('_RARE_ ' + words[1])
+        word, tag = words
+        tag = tag.strip()
+
+        if (word, tag) in rarewords:
+            dest.write('_RARE_ ' + tag + '\n')
         else:
             dest.write(line)
     else:
