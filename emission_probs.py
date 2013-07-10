@@ -12,9 +12,6 @@ class EmissionProbEmitter(object):
             self.srcname = self.get_sourcename()
         else:
             self.srcname = source_file
-        #State checkers
-        self.counted = False
-        self.prob_computed = False
         #Dictionaries
         self.word_emm_probs = defaultdict(dict)
         self.word_counts = defaultdict(dict)
@@ -50,11 +47,10 @@ class EmissionProbEmitter(object):
             and trigram_counts, if not already generated. Calls get_sourcename if 
             necessary"""
 
-        if self.counted:
+        if self.word_counts:
             print "Already counted"
         else:
             #Mark self as counted
-            self.counted = True
             with open(self.srcname) as src:
 
                 #Step through file and identify record type
@@ -94,10 +90,10 @@ class EmissionProbEmitter(object):
             Generates the dictionary of signle word probabilities. """
 
         #Check that file has been analyzed
-        if not self.counted:
+        if not self.word_counts:
             self.get_counts_from_file()
         #Check for previous execution
-        if self.prob_computed:
+        if self.word_emm_probs:
             print "Probabilities already computed"
         else:
 
@@ -156,7 +152,7 @@ class EmissionProbEmitter(object):
 
     def third_tag_prob(self, tag1, tag2, tag3):
 
-        if not self.counted:
+        if not self.word_counts:
             self.get_counts_from_file()
 
         bi_count = self.bigram_counts[(tag1, tag2)]
