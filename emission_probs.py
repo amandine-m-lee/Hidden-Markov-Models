@@ -116,14 +116,9 @@ class EmissionProbEmitter(object):
             ARGUMETNS: self
                        word - word ot look up emission probability of
                        tagtype - tag to be analyzes"""
-        #Couldn't get this to work with nested default dicts, because I couldn't
-#Set the inner type correctly
-        try:
-            return self.word_emm_probs[word][tag]
 
-        except KeyError:
-            return 0
-
+        return self.word_emm_probs[word].get(tag, 0)
+ 
 
     def best_tag(self, word):
 
@@ -132,10 +127,8 @@ class EmissionProbEmitter(object):
                        word - word to find the best unigram tag for
 
             Given word and no other info, find the most probable tag"""
-        if word in self.word_emm_probs:
-            tagdict = self.word_emm_probs[word]
-        else:
-            tagdict = self.word_emm_probs['_RARE_']
+
+        tagdict = self.word_emm_probs.get(word, self.word_counts['_RARE_'])
 
         return max(tagdict.keys(), key=lambda x: tagdict[x])
 
@@ -177,6 +170,8 @@ class EmissionProbEmitter(object):
 
     def viterbi_tagger(self, devfile, destfile):
 
+#Note to self; better to put io stuff in separate function 
+#Also probably shouldn't have the tagging algroithms in the class.
         with open(devfile) as dev:
             with open(destfile, 'w') as dest:
             
@@ -194,13 +189,14 @@ class EmissionProbEmitter(object):
                         if word in self.word_counts:
                             word_eff = word
                         else:
-                            word_eff = self.rare_type(word)
+                            word_eff = '_RARE_'
 
                         possible_tags = self.word_counts[word_eff].keys()
                         #max with function version
 
                         maxtag = max(possible_tags, key= lambda tag: \
-                                self.third_tag_prob(mem[0], mem[1], tag) * self.emission_prob(word_eff, tag)) 
+                                self.third_tag_prob(mem[0], mem[1], tag) * \
+                                self.emission_prob(word_eff, tag)) 
 
                         dest.write(word + ' ' + maxtag + '\n')
 
