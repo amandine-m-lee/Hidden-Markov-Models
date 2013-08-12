@@ -50,26 +50,24 @@ class EmissionProbEmitter(object):
         if self.word_counts:
             print "Already counted"
         else:
-            #Mark self as counted
             with open(self.srcname) as src:
 
                 #Step through file and identify record type
                 for line in src:
 
-                    parts = line.split(' ')
+                    parts = line.split()
 
                     #Count for a single word-tag combo
                     if parts[1] == 'WORDTAG':
                         count, _, tagtype, name = parts
-                        name = name.strip() #Get rid of trailing '\n'
                         #Check to see if word has already been recorded
-                        (self.word_counts[name])[tagtype] = count
+                        self.word_counts[name][tagtype] = count
                     #Unigram, bigram, or trigram count
                     else:
                         count = parts[0]
                         seqtype = parts[1]
-                        parts[-1] = parts[-1].strip() #Git rid of trailing '\n'
-                        args = tuple(parts[2:]) #Make list into tuple
+                        parts[-1] = parts[-1]
+                        args = tuple(parts[2:]) #Make list into tuple so it can be hashed
 
                         #Add to relevent dict. The key is a tuple with all tag types 
                         #in sequence
@@ -99,11 +97,11 @@ class EmissionProbEmitter(object):
 
             for word in self.word_counts:
                 for tag in self.word_counts[word]:
-                    count = (self.word_counts[word])[tag]
+                    count = self.word_counts[word][tag]
                     totalcount = self.unigram_counts[(tag,)]
                     prob = float(count)/float(totalcount)
 
-                    (self.word_emm_probs[word])[tag] = prob
+                    self.word_emm_probs[word][tag] = prob
  
                         
     def emission_prob(self, word, tag):
