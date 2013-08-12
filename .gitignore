@@ -1,3 +1,2 @@
-replace_rare
-.*.swp
-*.pyc 
+*\.sw*
+*\.pyc 
